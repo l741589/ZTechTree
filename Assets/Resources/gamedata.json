@@ -1,0 +1,74 @@
+
+{
+	"tech" : [
+		{
+			"id" : "tech1",
+			"time" : 5000,
+			"name" : "科技1"
+		},
+		{
+			"id" : "tech2",
+			"name" : "科技2",
+			"cond" :
+			{
+				"type" : 1,
+				"items" : [
+					{
+						"id" : "tech.tech1"
+					}
+				]
+			}
+		},
+		{
+			"id" : "tech3",
+			"name" : "科技3",
+			"cond" :
+			{
+				"type" : 1,
+				"items" : [
+					{
+						"id" : "tech.tech2"
+					}
+				]
+			}
+		}
+
+	],
+	"item" : [
+		{
+			"id" : "item1",
+			"name" : "物品1",
+			"time" : 5000,
+			"cond" :
+			{
+				"type" : 1,
+				"items" : [
+					{
+						"id" : "tech.tech1"
+					},
+					{
+						"id" : "item.item2",
+						"count":2
+					}
+				]
+			}
+		},
+		{
+			"id" : "item2",
+			"name" : "物品2",
+			"time" : 3000,
+			"cond" :
+			{
+				"type" : 1,
+				"items" : [
+					{
+						"id" : "tech.tech1"
+					}
+				]
+			}
+		}
+	],
+	"buld" : [
+
+	]
+}
