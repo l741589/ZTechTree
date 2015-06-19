@@ -96,7 +96,11 @@ namespace Assets.TechTree.Data {
     }
 
     public class UserData {
-   
+        
+        
+        
+
+        #region Funcs
         public UserData() {
             InitData();
         }
@@ -139,7 +143,12 @@ namespace Assets.TechTree.Data {
                     e.getUserItem().CanShow = true;
                 }
             }
-        }       
+            foreach (var e in gdata.var) Var.SetVar(e.Key, e.Value);
+        }
+
+        
+
+        #endregion Funcs
     }
 
 }

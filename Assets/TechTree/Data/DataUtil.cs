@@ -18,6 +18,7 @@ namespace Assets.TechTree.Data {
             return b;
         }
 
+
         public static bool Can(this Conditions.ConditionItem cond) {
             var t = FastData.Lookup(cond.id).UserObj as UBaseItem;
             if (t == null) return false;

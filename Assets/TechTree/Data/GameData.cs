@@ -35,9 +35,7 @@ namespace Assets.TechTree.Data {
         public class Product {
             public string id { get; set; }
             public string need { get; set; }
-        }
-        
-        
+        }       
     }
 
     public class Conditions {
@@ -56,7 +54,10 @@ namespace Assets.TechTree.Data {
         public List<Tech> tech { get; set; }
         public List<Item> item { get; set; }
         public List<Buld> buld { get; set; }
+        public Dictionary<string, string> var { get; set; }
+        public Dictionary<string, string> strings { get; set; }
     }
 
+   
     
 }

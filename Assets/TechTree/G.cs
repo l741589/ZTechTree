@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEditor.Macros;
 using UnityEngine;
 
 namespace Assets.TechTree {
@@ -58,12 +59,16 @@ namespace Assets.TechTree {
             Prefabs.Init();
             DataLoader.LoadObject<GameData>("gamedata.json", d => {
                 data = d;
-                UpdateLoaded();
-            });
-            OnLoaded(e => {
                 fdata = new FastData(data);
                 udata = new UserData();
                 udata.InitData();
+                UpdateLoaded();
+            });
+            OnLoaded(g => {
+                Scheduler.Loop(() => {
+                    Var.SetVar<float>(Var.food, f => f - Var.GetVar<int>(Var.people) * 0.1f);
+                    return 1;
+                });
             });
         }
 

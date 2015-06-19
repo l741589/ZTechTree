@@ -48,7 +48,7 @@
 					},
 					{
 						"id" : "item.item2",
-						"count":2
+						"count" : 2
 					}
 				]
 			}
@@ -69,6 +69,26 @@
 		}
 	],
 	"buld" : [
-
-	]
+		{
+			"id":"buid1",
+			"name":"设施1",
+			"time":5000,
+			"cond":{
+				"type":1,
+				"items":[]
+			}
+		}
+	],
+	"var":{
+		"$people":10,
+		"$food":30
+	},
+	"strings":{
+		"global.tech":"科技",
+		"global.item":"物品",
+		"global.buld":"设施",
+		"msgbar.people":"人口：",
+		"msgbar.food":"粮食：",
+		"msgbar.enenergy":"能源："
+	}
 }

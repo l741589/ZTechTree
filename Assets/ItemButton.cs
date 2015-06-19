@@ -73,6 +73,7 @@ public class ItemButton : MonoBehaviour {
     }
 
     public void OnClick() {
+        Var.SetVar<int>(Var.people, v=>v + 1);
         if (Data.EndTime != null) return;
         if (Data is UTech && (Data as UTech).Studied) return;
         if (Data is UItem && !Pay()) return;
