@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using System.Collections;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Assets.TechTree {
     class DataLoader {
@@ -74,6 +75,22 @@ namespace Assets.TechTree {
         public static void LoadObject<T>(String path, Action<T> cb) {
             G.Instance.StartCoroutine(getObj(path, cb));
         }
+
+        private static IEnumerator getObj<T>(String path, Func<JObject, JObject> prepare, Action<T> cb) {
+            return getString(path, s => {
+                if (cb != null) {
+                    var jobj = JObject.Parse(s);
+                    if (prepare!=null) jobj=prepare(jobj);
+                    if (cb != null) cb(jobj.ToObject<T>());
+                }
+            });
+        }
+
+        public static void LoadObject<T>(String path,Func<JObject,JObject> prepare,Action<T> cb) {
+            G.Instance.StartCoroutine(getObj(path,prepare, cb));
+        }
+
+        
 
         public static void LoadString(String path, Action<String> cb) {
             G.Instance.StartCoroutine(getString(path, cb));

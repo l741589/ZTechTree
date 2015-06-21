@@ -73,7 +73,7 @@ public class ItemButton : MonoBehaviour {
     }
 
     public void OnClick() {
-        Var.SetVar<int>(Var.people, v=>v + 1);
+        //Var.SetVar<int>(Var.people, v=>v + 1);
         if (Data.EndTime != null) return;
         if (Data is UTech && (Data as UTech).Studied) return;
         if (Data is UItem && !Pay()) return;
@@ -111,7 +111,7 @@ public class ItemButton : MonoBehaviour {
     }
 
     public bool Pay() {
-        if (!Data.Raw.Pay()) return false;
+        //if (!Data.Raw.Pay()) return false;
         UpdateDependences();
         return true;
     }

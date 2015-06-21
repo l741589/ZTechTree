@@ -20,7 +20,7 @@ namespace Assets.TechTree.Data {
 
 
         public static bool Can(this Conditions.ConditionItem cond) {
-            var t = FastData.Lookup(cond.id).UserObj as UBaseItem;
+            var t = (FastData.Lookup(cond.id) as BaseItem).userData;
             if (t == null) return false;
             if (t is UTech) {
                 var x = t as UTech;
@@ -34,21 +34,16 @@ namespace Assets.TechTree.Data {
             return true;
         }
 
-        public static bool Pay(this BaseItem item) {
-            if (item.paid == null) return Pay(item.cond);
-            else return Pay(item.paid);
-        }
-
         public static bool Pay(this Conditions cond) {
             if (cond == null) return false;
             if (!cond.Can()) return false;
             switch (cond.type) {
             case 1:
                 foreach (var e in cond.items) {
-                    var ext=FastData.Lookup(e.id);
-                    if (ext.UserObj is UTech) {
-                    } else if (ext.UserObj is UItem) {
-                        ((UItem)ext.UserObj).Count -= e.count;
+                    var ext=FastData.Lookup(e.id) as BaseItem;
+                    if (ext.userData is UTech) {
+                    } else if (ext.userData is UItem) {
+                        ((UItem)ext.userData).Count -= e.count;
                     } else {
                         throw new NotImplementedException();
                     }

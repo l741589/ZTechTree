@@ -4,7 +4,8 @@
 		{
 			"id" : "tech1",
 			"time" : 5000,
-			"name" : "科技1"
+			"name" : "科技1",
+			"action":["study"]
 		},
 		{
 			"id" : "tech2",
@@ -17,7 +18,8 @@
 						"id" : "tech.tech1"
 					}
 				]
-			}
+			},
+			"action":["study"]
 		},
 		{
 			"id" : "tech3",
@@ -30,7 +32,8 @@
 						"id" : "tech.tech2"
 					}
 				]
-			}
+			},
+			"action":["study"]
 		}
 
 	],
@@ -51,7 +54,8 @@
 						"count" : 2
 					}
 				]
-			}
+			},
+			"action":["study"]
 		},
 		{
 			"id" : "item2",
@@ -65,7 +69,8 @@
 						"id" : "tech.tech1"
 					}
 				]
-			}
+			},
+			"action":["study"]
 		}
 	],
 	"buld" : [

@@ -28,5 +28,23 @@ namespace Assets.Layout {
                 text.gameObject.SetActive(true);
             }
         }
+
+        public static void EnumerateChildren(this Transform o,Func<Transform,bool> callback) {
+            foreach (Transform e in o) {
+                var b=callback(e);
+                if (b) {
+                    e.EnumerateChildren(callback);
+                }                
+            }
+        }
+
+        public static T FindByName<T>(this Component o,string name) {
+            Transform t = null;
+            o.transform.EnumerateChildren(c => {
+                if (c.name == name) t = c;
+                return t == null;
+            });
+            return t.GetComponent<T>();
+        }
     }
 }

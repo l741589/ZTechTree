@@ -9,50 +9,28 @@ using UnityEngine;
 namespace Assets.TechTree.Data {
     public class FastData {
         public static FastData Instance { get { return G.Instance.fdata; } }
-        public Dictionary<object, ItemExtInfo> extMember = new Dictionary<object, ItemExtInfo>();
-        public Dictionary<String, ItemExtInfo> strLookupTable = new Dictionary<String, ItemExtInfo>();
+        public Dictionary<String, object> strLookupTable = new Dictionary<String, object>();
         private MultiEnumerable<BaseItem> allitems;
         public MultiEnumerable<BaseItem> AllItems { get { if (allitems == null) allitems = new MultiEnumerable<BaseItem>(gdata.tech, gdata.item, gdata.buld); return allitems; } }
         public static GameData gdata { get { return G.Instance.data; } }
-        public class ItemExtInfo : Dictionary<String,object>{
-            public ItemExtInfo(object raw) {
-                this["Raw"] = raw;
-            }
-            public object Raw { get { return this["Raw"]; } }
-            public T raw<T>() { return (T)Raw; }
-            public object UserObj { get { return this["User"]; } set { this["User"] = value; } }
-            public override string ToString() {
-                return UserObj.ToString();
-            }
-        }
-
+        
         public GameData raw{get;private set;}
 
-        private ItemExtInfo AddItem(object t,Action<ItemExtInfo> prepare) {
-            var r=new ItemExtInfo(t);
-            extMember[t] = r;
-            prepare(r);
-            strLookupTable[r.ToString()] = r;
-            return r;
-        }
 
         public FastData(GameData data) {
             raw = data;
             Visit(raw, "");
             foreach (Tech t in data.tech) {
-                AddItem(t, r => {
-                    r.UserObj = new UTech().Init(t);
-                });
+                t.userData = new UTech().Init(t);
+                strLookupTable[t.realId] = t;
             }
             foreach (Item t in data.item) {
-                AddItem(t, r => {
-                    r.UserObj = new UItem().Init(t);
-                });
+                t.userData = new UItem().Init(t);
+                strLookupTable[t.realId] = t;
             }
             foreach (Buld t in data.buld) {
-                AddItem(t, r => {
-                    r.UserObj = new UBuld().Init(t);
-                });
+                t.userData = new UBuld().Init(t);
+                strLookupTable[t.realId] = t;
             }
         }
 
@@ -62,8 +40,8 @@ namespace Assets.TechTree.Data {
                 var i = o as IEnumerable;
                 foreach (var e in i) Visit(e,prefix);
             } else {
-                if (o is Identifiable) {
-                    var i = o as Identifiable;
+                if (o is IIdentifiable) {
+                    var i = o as IIdentifiable;
                     i.realId = prefix+i.id;
                     i.cateId = prefix.TrimEnd('.');
                 }
@@ -74,10 +52,21 @@ namespace Assets.TechTree.Data {
             }
         }
 
-        public static ItemExtInfo Lookup(String key) {
-            ItemExtInfo r;
+        public static T Lookup<T>(String key) {
+            return (T)Lookup(key);
+        }
+
+        public static object Lookup(String key) {
+            object r;
             if (Instance.strLookupTable.TryGetValue(key, out r)) return r;
             Debug.LogWarning("Key:'" + key + "' not found when Lookup " + typeof(FastData).Name);
+            return null;
+        }
+    }
+
+
+    public static class ___FastData {
+        public static ItemAction GetAction(string name) {
             return null;
         }
     }

@@ -1,24 +1,43 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace Assets.TechTree.Data {
 
-    public class Identifiable {
+    public class HasUserData<T> {
+        [JsonIgnore]
+        public T userData;
+    }
+    public interface IIdentifiable {
+        string cateId { get; set; }
+        string id { get; set; }
+        string realId { get; set; }
+    }
+    public class Identifiable<T> : HasUserData<T>,IIdentifiable {
         public String id { get; set; }
+        [JsonIgnore]
         public String realId { get; set; }
+        [JsonIgnore]
         public String cateId { get; set; }
         public override string ToString() {
             return realId ?? id ?? base.ToString();
         }
     }
 
-    public class BaseItem :Identifiable{
+    public class ItemAction {
+        public string id { get; set; }
+        public Conditions cond { get; set; }
+        public string macro { get; set; }
+    }
+
+    public class BaseItem : Identifiable<UBaseItem> {
         public String name { get; set; }
         public Conditions cond { get; set; }
-        public Conditions paid { get; set; }
         public int time { get; set; }
+        public List<ItemAction> action { get; set; }
     }
 
     public class Tech : BaseItem {
@@ -56,8 +75,8 @@ namespace Assets.TechTree.Data {
         public List<Buld> buld { get; set; }
         public Dictionary<string, string> var { get; set; }
         public Dictionary<string, string> strings { get; set; }
-    }
 
-   
-    
+
+        
+    }
 }

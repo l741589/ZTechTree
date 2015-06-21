@@ -75,13 +75,6 @@ namespace Assets.TechTree.Data {
         }
     }
 
-    
-
-    public static class __UBaseItemExt {
-        public static UBaseItem getUserItem(this BaseItem item) {
-            return FastData.Lookup(item.realId).UserObj as UBaseItem;
-        }
-    }
 
     public class UTech : UBaseItem {
         public UTech() : base() { Studied = false; }
@@ -110,23 +103,23 @@ namespace Assets.TechTree.Data {
 
         public void AddItem<T>(Dictionary<String,T> dic,BaseItem item) where T:UBaseItem{
             if (dic.ContainsKey(item.realId)) {
-                if (object.ReferenceEquals(dic[item.realId], item.getUserItem())) return;
+                if (object.ReferenceEquals(dic[item.realId], item.userData)) return;
                 throw new ApplicationException("don't create new useritem");
             }
-            dic[item.realId] = item.getUserItem() as T;
+            dic[item.realId] = item.userData as T;
         }
 
         private void AnalyseDenpendency(IEnumerable baseitems){
             foreach(var _e in baseitems){
                 var e=_e as BaseItem;
-                var uthis=e.getUserItem();
+                var uthis = e.userData;
                 if (e.cond == null) continue;
                 switch (e.cond.type) {
                 case 1:
                     foreach (var c in e.cond.items) {
-                        var k = FastData.Lookup(c.id);
-                        (k.UserObj as UBaseItem).ReverseDependences.Add(uthis);
-                        uthis.Dependences.Add(k.UserObj as UBaseItem);
+                        var k = FastData.Lookup<BaseItem>(c.id);
+                        k.userData.ReverseDependences.Add(uthis);
+                        uthis.Dependences.Add(k.userData);
                     }
                     break;
                 default: goto case 1;
@@ -139,8 +132,8 @@ namespace Assets.TechTree.Data {
             var allitems = FastData.Instance.AllItems;
             AnalyseDenpendency(allitems);
             foreach (var e in allitems) {
-                if (e.getUserItem().Dependences.IsEmpty()) {
-                    e.getUserItem().CanShow = true;
+                if (e.userData.Dependences.IsEmpty()) {
+                    e.userData.CanShow = true;
                 }
             }
             foreach (var e in gdata.var) Var.SetVar(e.Key, e.Value);

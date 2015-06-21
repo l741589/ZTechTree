@@ -57,13 +57,15 @@ namespace Assets.TechTree {
 
         void Start() {
             Prefabs.Init();
-            DataLoader.LoadObject<GameData>("gamedata.json", d => {
+            DataLoader.LoadObject<GameData>("gamedata.json", GameDataPrepare.Prepare, d => {
                 data = d;
                 fdata = new FastData(data);
                 udata = new UserData();
                 udata.InitData();
                 UpdateLoaded();
-            });
+            });            
+            
+            
             OnLoaded(g => {
                 Scheduler.Loop(() => {
                     Var.SetVar<float>(Var.food, f => f - Var.GetVar<int>(Var.people) * 0.1f);
