@@ -5,6 +5,9 @@ using UnityEngine.UI;
 using Assets.TechTree;
 using Assets.Layout;
 using System;
+using Assets.TechTree.Actions;
+using Assets.Util;
+using System.Collections.Generic;
 
 public class ItemButton : MonoBehaviour {
 
@@ -36,102 +39,42 @@ public class ItemButton : MonoBehaviour {
         Tag.gameObject.SetActive(false);
         Num.gameObject.SetActive(false);
         GetComponent<Button>().onClick.AddListener(OnClick);
-        this.transform.SetParent(G.Instance.ListBox.transform);
+        this.transform.SetParent(G.Instance.ListBox.Target.transform);
         DataUpdated();
     }
 
+    private bool invalidate = false;
+
     public void DataUpdated() {
-        if (Data != null && Text != null) {
-            Text.text = Data.Raw.name;
-            if (Data.EndTime != null) {
-                CountDown();
-            }
-            if (Data is UTech) {
-                var tech = data as UTech;
-                Tag.SetText(tech.Studied ? "" : "NEW!");
-            } else if (Data is UItem) {
-                var item = data as UItem;
-                Num.SetText("*" + item.Count);
-            }
-        }
+        invalidate = true;
     }
 
-
-    private void setTime(TimeSpan? time) {
-        if (!Time.IsDestroyed()) {
-            if (time ==null) {
-                Time.SetText(null);
-            } else {
-                Time.SetText(time.Value.Hours + ":" + time.Value.Minutes + ":" + time.Value.Seconds);
-            }
-        }
-    }
 
     // Update is called once per frame
     void Update() {
-
+        if (invalidate) {
+            if (Data != null && Text != null) {
+                Text.text = Data.Raw.name;
+                string time = null;
+                string num = null;
+                string tag = null;
+                foreach (var e in Data.Raw.action) {
+                    var a = e.UserData;
+                    if (String.IsNullOrEmpty(time)) time = a.Time;
+                    if (String.IsNullOrEmpty(num)) num = a.Num;
+                    if (String.IsNullOrEmpty(tag)) tag = a.Tag;
+                }
+                Time.SetText(time);
+                Num.SetText(num);
+                Tag.SetText(tag);
+            }
+            invalidate = false;
+        }
     }
 
     public void OnClick() {
-        //Var.SetVar<int>(Var.people, v=>v + 1);
-        if (Data.EndTime != null) return;
-        if (Data is UTech && (Data as UTech).Studied) return;
-        if (Data is UItem && !Pay()) return;
-        Data.EndTime = DateTime.UtcNow.AddMilliseconds(Data.Raw.time);
-        CountDown();
+        G.Instance.ActionPanel.Target.Apply(Data);
     }
 
-    public void TimeDone() {
-        Data.EndTime = null;
-        setTime(null);
-        if (Data is UTech) {
-            var t = Data as UTech;
-            t.Studied = true;
-            Tag.SetText(null);
-        } else if (Data is UItem) {
-            var t = Data as UItem;
-            ++t.Count;
-            Num.SetText("*" + t.Count);
-        } else {
-            throw new NotImplementedException();
-        }
-        UpdateReverseDependences();
-    }
-
-    public void UpdateReverseDependences() {
-        foreach (var e in Data.ReverseDependences) {
-            e.CanShow = e.Raw.cond.Can();
-        }
-    }
-
-    public void UpdateDependences() {
-        foreach (var e in Data.Dependences) {
-            if (e.Button != null) e.Button.DataUpdated();
-        }
-    }
-
-    public bool Pay() {
-        //if (!Data.Raw.Pay()) return false;
-        UpdateDependences();
-        return true;
-    }
-
-    public void CountDown() {
-        Scheduler.Loop(() => {
-            if (Data.EndTime != null) {
-                var span = Data.EndTime.Value.Subtract(DateTime.UtcNow);
-                //Debug.Log(span);
-                if (span.Ticks > 0) {
-                    setTime(span);
-                } else {
-                    TimeDone();
-                    return -1;
-                }
-                return 0.5f;
-            } else {
-                setTime(null);
-            }
-            return -1;
-        });
-    }
+   
 }

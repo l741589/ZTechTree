@@ -21,14 +21,13 @@ namespace Assets.TechTree.Data {
                 }
                 for (var i = 0; i < action.Count; ++i) {
                     if (action[i].Type == JTokenType.String) {
-                        var a = JObject.FromObject(new {
-                            id = (string)action[i]
-                        });
-                        if (a["cond"] == null && actionsNeedCondtion.Contains((string)a["name"])) {
-                            a["cond"] = obj["cond"];
-                        }
-                        action[i] = a;
+                        action[i] = JObject.FromObject(new { id = (string)action[i] });                        
                     }
+                    var a = action[i];
+                    if (a["paid"] == null && actionsNeedCondtion.Contains((string)a["id"])) {
+                        a["paid"] = obj["cond"];
+                    }
+
                 }
             }
             return inobj;

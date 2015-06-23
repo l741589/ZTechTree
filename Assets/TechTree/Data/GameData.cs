@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Assets.TechTree.Actions;
+using Assets.Util;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -7,16 +9,31 @@ using System.Text;
 
 namespace Assets.TechTree.Data {
 
-    public class HasUserData<T> {
+    public class HasUserData<T> where T:new(){
+        private T userData;
+        private bool initialized = false;
         [JsonIgnore]
-        public T userData;
+        public T UserData {
+            get {
+                if (initialized) return userData;
+                userData = CreateNew();
+                if (userData is Initable1) {
+                    ((Initable1)userData).Init(this);
+                }
+                initialized = true;
+                return userData;
+            }
+        }
+        protected virtual T CreateNew(){
+            return new T();
+        }
     }
     public interface IIdentifiable {
         string cateId { get; set; }
         string id { get; set; }
         string realId { get; set; }
     }
-    public class Identifiable<T> : HasUserData<T>,IIdentifiable {
+    public class Identifiable<T> : HasUserData<T>,IIdentifiable where T:new(){
         public String id { get; set; }
         [JsonIgnore]
         public String realId { get; set; }
@@ -27,35 +44,43 @@ namespace Assets.TechTree.Data {
         }
     }
 
-    public class ItemAction {
-        public string id { get; set; }
-        public Conditions cond { get; set; }
+    public class ItemAction : Identifiable<BaseAction>{
+        public Conditions paid { get; set; }
+        public float time { get; set; }
         public string macro { get; set; }
+        protected override BaseAction CreateNew() {
+            return BaseAction.Create(this);
+        }
+    }
+
+    public class ItemActionInfo {
+        public string name { get; set; }
     }
 
     public class BaseItem : Identifiable<UBaseItem> {
         public String name { get; set; }
+        public String desc { get; set; }
         public Conditions cond { get; set; }
-        public int time { get; set; }
         public List<ItemAction> action { get; set; }
     }
 
     public class Tech : BaseItem {
+        protected override UBaseItem CreateNew() {return new UTech();}
     }
 
     public class Item : BaseItem {
-    }
-
-    public class Need : Dictionary<string,int>{
-        
+        protected override UBaseItem CreateNew() { return new UItem(); }
     }
 
     public class Buld : BaseItem {
-        public class Product {
-            public string id { get; set; }
-            public string need { get; set; }
-        }       
+        protected override UBaseItem CreateNew() { return new UBuld(); }      
     }
+
+
+    public class Need : Dictionary<string, int> {
+
+    }
+
 
     public class Conditions {
 
@@ -75,8 +100,6 @@ namespace Assets.TechTree.Data {
         public List<Buld> buld { get; set; }
         public Dictionary<string, string> var { get; set; }
         public Dictionary<string, string> strings { get; set; }
-
-
-        
+        public Dictionary<string, ItemActionInfo> action { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Assets.TechTree.Data;
+using Assets.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using UnityEngine;
 
 namespace Assets.TechTree {
     public class Prefabs : Dictionary<String,GameObject>{
-        public static readonly String[] Names = { "NavButton", "ItemButton" };
+        public static readonly String[] Names = { "NavButton", "ItemButton","ActionButton" };
         public bool IsLoaded {
             get {
                 foreach (var e in Names) if (!ContainsKey(e)) return false;
@@ -36,8 +37,11 @@ namespace Assets.TechTree {
         public event LoadedHandler Loaded;
         private Boolean isLoaded = false;
         public Boolean IsLoaded {get { return UpdateLoaded(); } }
-        public ListBox ListBox { get; set; }
         public Prefabs Prefabs { get; private set; }
+
+        public WeakReference<ListBox> ListBox { get; set; }
+        public WeakReference<ActionPanel> ActionPanel { get; set; }
+
         public bool UpdateLoaded(){
             if (isLoaded) return true;
             if (data == null) return false;

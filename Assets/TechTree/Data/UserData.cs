@@ -1,4 +1,5 @@
-﻿using Assets.Util;
+﻿using Assets.TechTree.Actions;
+using Assets.Util;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -9,15 +10,20 @@ using UnityEngine;
 
 namespace Assets.TechTree.Data {
 
-    public class UBaseItem {
-        private BaseItem raw;
+    public class Rawable<T> : Initable<T> {
+        private T raw;
 
         [JsonIgnore]
-        public BaseItem Raw {get {return raw;}}
+        public T Raw { get { return raw; } }
 
-        public String Id { get { return raw.id; } }
-        public String RealId { get { return raw.realId; } }
-        public DateTime? EndTime { get; set; }
+        public override void Init(T raw) {
+            this.raw = raw;
+        }
+    }
+
+    public class UBaseItem : Rawable<BaseItem> {
+       
+
         public bool ForceShow { get; set; }
         public List<UBaseItem> ReverseDependences { get; private set; }
         public List<UBaseItem> Dependences { get; private set; }
@@ -30,15 +36,12 @@ namespace Assets.TechTree.Data {
         }
 
         public override string ToString() {
-            return RealId;
+            return Raw.realId;
         }
 
-        public UBaseItem Init(BaseItem raw) {
-            this.raw = raw;
-            return this;
-        }
+       
         [JsonIgnore]
-        public ItemButton Button { get; set; }
+        public WeakReference<ItemButton> Button { get; set; }
         private bool canShow = false;
         public bool CanShow {
             get { return canShow; }
@@ -66,11 +69,25 @@ namespace Assets.TechTree.Data {
                 if (Button != null) return;
                 var o = GameObject.Instantiate(G.Instance.Prefabs["ItemButton"]);
                 Button = o.GetComponent<ItemButton>();
-                Button.Data = this;
+                Button.Target.Data = this;
             } else {
                 if (Button == null) return;
-                GameObject.Destroy(Button.gameObject);
+                GameObject.Destroy(Button.Target.gameObject);
                 Button = null;
+            }
+        }
+
+        public void UpdateReverseDependences() {
+            foreach (var e in ReverseDependences) {
+                foreach (var a in e.Raw.action) { a.UserData.OnDataUpdate(); }
+                e.CanShow = e.Raw.cond.Can();
+            }
+        }
+
+        public void UpdateDependences() {
+            foreach (var e in Dependences) {
+                foreach (var a in e.Raw.action) {a.UserData.OnDataUpdate();}
+                if (e.Button != null) e.Button.Target.DataUpdated();
             }
         }
     }
@@ -88,11 +105,8 @@ namespace Assets.TechTree.Data {
     public class UBuld : UBaseItem {
     }
 
-    public class UserData {
-        
-        
-        
 
+    public class UserData {
         #region Funcs
         public UserData() {
             InitData();
@@ -101,25 +115,18 @@ namespace Assets.TechTree.Data {
 
         public GameData gdata { get { return G.Instance.data; } }
 
-        public void AddItem<T>(Dictionary<String,T> dic,BaseItem item) where T:UBaseItem{
-            if (dic.ContainsKey(item.realId)) {
-                if (object.ReferenceEquals(dic[item.realId], item.userData)) return;
-                throw new ApplicationException("don't create new useritem");
-            }
-            dic[item.realId] = item.userData as T;
-        }
 
         private void AnalyseDenpendency(IEnumerable baseitems){
             foreach(var _e in baseitems){
                 var e=_e as BaseItem;
-                var uthis = e.userData;
+                var uthis = e.UserData;
                 if (e.cond == null) continue;
                 switch (e.cond.type) {
                 case 1:
                     foreach (var c in e.cond.items) {
                         var k = FastData.Lookup<BaseItem>(c.id);
-                        k.userData.ReverseDependences.Add(uthis);
-                        uthis.Dependences.Add(k.userData);
+                        k.UserData.ReverseDependences.Add(uthis);
+                        uthis.Dependences.Add(k.UserData);
                     }
                     break;
                 default: goto case 1;
@@ -132,8 +139,8 @@ namespace Assets.TechTree.Data {
             var allitems = FastData.Instance.AllItems;
             AnalyseDenpendency(allitems);
             foreach (var e in allitems) {
-                if (e.userData.Dependences.IsEmpty()) {
-                    e.userData.CanShow = true;
+                if (e.UserData.Dependences.IsEmpty()) {
+                    e.UserData.CanShow = true;
                 }
             }
             foreach (var e in gdata.var) Var.SetVar(e.Key, e.Value);

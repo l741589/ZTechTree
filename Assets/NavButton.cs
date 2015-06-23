@@ -40,7 +40,7 @@ public class NavButton : MonoBehaviour {
     public void OnCheck(bool check) {
         if (check) {
             foreach (var e in G.Instance.fdata.AllItems) {
-                var b = e.userData;
+                var b = e.UserData;
                 b.Visible = e.cateId == DataId;
             }
         }
