@@ -20,6 +20,8 @@ namespace Assets.TechTree.Actions {
         public String Num { get { return num; } set { num = value; DataUpdate(); } }
         public String Tag { get { return tag; } set { tag = value; DataUpdate(); } }
 
+        public virtual bool Enabled{get{return true;}}
+
         public UBaseItem Item { get; private set; }
         public WeakReference<ActionButton> Button { get; set; }
         public virtual void OnLoaded() { OnDataUpdate(); }
@@ -33,6 +35,9 @@ namespace Assets.TechTree.Actions {
         public void DataUpdate() {
             if (Item.Button != null) {
                 Item.Button.Target.DataUpdated();
+            }
+            if (Button != null&&Button.Target!=null) {
+                Button.Target.DataUpdated();
             }
         }
 
@@ -76,6 +81,7 @@ namespace Assets.TechTree.Actions {
             OnTimeDone();
             Time=null;
             EndTime = null;
+            OnDataUpdate();
             Item.UpdateReverseDependences();
         }
 

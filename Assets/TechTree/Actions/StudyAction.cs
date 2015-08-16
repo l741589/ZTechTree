@@ -34,6 +34,12 @@ namespace Assets.TechTree.Actions {
                 Tag=null;
             }
         }
+
+        public override bool Enabled {
+            get {
+                return (Item is UTech && !(Item as UTech).Studied);
+            }
+        }
     }
 
         

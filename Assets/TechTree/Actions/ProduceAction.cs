@@ -26,5 +26,11 @@ namespace Assets.TechTree.Actions {
                 ++((UItem)Item).Count;
             }
         }
+
+        public override bool Enabled {
+            get {
+                return Raw.paid.Can();
+            }
+        }
     }
 }
